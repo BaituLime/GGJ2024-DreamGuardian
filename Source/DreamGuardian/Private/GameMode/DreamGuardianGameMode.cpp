@@ -1,14 +1,14 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Baitulime. All Rights Reserved.
 
-#include "DreamGuardianGameMode.h"
-#include "DreamGuardianPlayerController.h"
-#include "DreamGuardianCharacter.h"
+#include "GameMode/DreamGuardianGameMode.h"
+#include "Player/CatPlayerController.h"
+#include "Player/CatCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ADreamGuardianGameMode::ADreamGuardianGameMode()
 {
 	// use our custom PlayerController class
-	PlayerControllerClass = ADreamGuardianPlayerController::StaticClass();
+	PlayerControllerClass = ACatPlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDown/Blueprints/BP_TopDownCharacter"));

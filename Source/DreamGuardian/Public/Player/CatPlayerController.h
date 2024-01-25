@@ -1,11 +1,11 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Baitulime. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
-#include "DreamGuardianPlayerController.generated.h"
+#include "CatPlayerController.generated.h"
 
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
@@ -15,12 +15,12 @@ class UInputAction;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS()
-class ADreamGuardianPlayerController : public APlayerController
+class ACatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
-	ADreamGuardianPlayerController();
+	ACatPlayerController();
 
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)

@@ -1,18 +1,18 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Baitulime. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "DreamGuardianCharacter.generated.h"
+#include "CatCharacter.generated.h"
 
 UCLASS(Blueprintable)
-class ADreamGuardianCharacter : public ACharacter
+class ACatCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	ADreamGuardianCharacter();
+	ACatCharacter();
 
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;

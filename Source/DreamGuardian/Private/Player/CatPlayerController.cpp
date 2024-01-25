@@ -1,11 +1,11 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Baitulime. All Rights Reserved.
 
-#include "DreamGuardianPlayerController.h"
+#include "Player/CatPlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
-#include "DreamGuardianCharacter.h"
+#include "Player/CatCharacter.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
@@ -14,7 +14,7 @@
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-ADreamGuardianPlayerController::ADreamGuardianPlayerController()
+ACatPlayerController::ACatPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
@@ -22,7 +22,7 @@ ADreamGuardianPlayerController::ADreamGuardianPlayerController()
 	FollowTime = 0.f;
 }
 
-void ADreamGuardianPlayerController::BeginPlay()
+void ACatPlayerController::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -34,7 +34,7 @@ void ADreamGuardianPlayerController::BeginPlay()
 	}
 }
 
-void ADreamGuardianPlayerController::SetupInputComponent()
+void ACatPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
@@ -43,16 +43,16 @@ void ADreamGuardianPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ADreamGuardianPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ADreamGuardianPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ADreamGuardianPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ADreamGuardianPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ACatPlayerController::OnSetDestinationTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ACatPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ACatPlayerController::OnSetDestinationReleased);
 
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ADreamGuardianPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ADreamGuardianPlayerController::OnTouchTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ADreamGuardianPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ADreamGuardianPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ACatPlayerController::OnTouchTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ACatPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ACatPlayerController::OnTouchReleased);
 	}
 	else
 	{
@@ -60,13 +60,13 @@ void ADreamGuardianPlayerController::SetupInputComponent()
 	}
 }
 
-void ADreamGuardianPlayerController::OnInputStarted()
+void ACatPlayerController::OnInputStarted()
 {
 	StopMovement();
 }
 
 // Triggered every frame when the input is held down
-void ADreamGuardianPlayerController::OnSetDestinationTriggered()
+void ACatPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
@@ -98,7 +98,7 @@ void ADreamGuardianPlayerController::OnSetDestinationTriggered()
 	}
 }
 
-void ADreamGuardianPlayerController::OnSetDestinationReleased()
+void ACatPlayerController::OnSetDestinationReleased()
 {
 	// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
@@ -112,13 +112,13 @@ void ADreamGuardianPlayerController::OnSetDestinationReleased()
 }
 
 // Triggered every frame when the input is held down
-void ADreamGuardianPlayerController::OnTouchTriggered()
+void ACatPlayerController::OnTouchTriggered()
 {
 	bIsTouch = true;
 	OnSetDestinationTriggered();
 }
 
-void ADreamGuardianPlayerController::OnTouchReleased()
+void ACatPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
