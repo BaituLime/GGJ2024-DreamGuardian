@@ -51,11 +51,11 @@ void ADreamGuardianCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 }
 
-//void ADreamGuardianCharacter::BeginPlay()
-//{
-//	Super::BeginPlay();
-//	FString Path = "/Game/Widgets/WBP_store.WBP_store_C";
-//	UClass* store = LoadClass<UUserWidget>(nullptr, *Path);
-//	UStoreWedget* storew = CreateWidget<UStoreWedget>(GetWorld(), store);
-//	storew->open();
-//}
+void ADreamGuardianCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	FString Path = "/Game/Widgets/WBP_store.WBP_store_C";
+	UClass* store = LoadClass<UUserWidget>(nullptr, *Path);
+	UStoreWedget* storew = CreateWidget<UStoreWedget>(GetWorld(), store);
+	storew->open();
+}

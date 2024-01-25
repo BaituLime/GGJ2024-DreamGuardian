@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "DreamGuardianGameMode.generated.h"
 
+
 UCLASS(minimalapi)
 class ADreamGuardianGameMode : public AGameModeBase
 {
@@ -13,6 +14,7 @@ class ADreamGuardianGameMode : public AGameModeBase
 
 public:
 	ADreamGuardianGameMode();
+
 };
 
 
