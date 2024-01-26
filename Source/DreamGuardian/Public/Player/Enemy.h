@@ -3,26 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
 UCLASS()
-class DREAMGUARDIAN_API AEnemy : public APawn
+class DREAMGUARDIAN_API AEnemy : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this pawn's properties
-	AEnemy();
-
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, Category = Enemy)
+	float MaxValueHealth;
+	UPROPERTY(EditDefaultsOnly, Category = Enemy)
+	float SpeedMoving{100.f};
+	UPROPERTY(EditDefaultsOnly, Category = Enemy)
+	float ValueAttack{5.f};
+	UPROPERTY(EditDefaultsOnly, Category = Enemy)
+	float ScopeAttack{100.f};
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = Enemy)
+	float ValueHealth;
 
 public:
-	// Called every frame
+	AEnemy();
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+protected:
+	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void Attack();
 };
