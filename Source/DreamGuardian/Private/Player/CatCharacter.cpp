@@ -47,5 +47,15 @@ ACatCharacter::ACatCharacter()
 
 void ACatCharacter::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
+
+	ValueEnergy = FMath::Clamp(ValueEnergy + DeltaSeconds, 0, MaxValueEnergy);
+}
+
+void ACatCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ValueHealth = MaxValueHealth;
+	ValueEnergy = MaxValueEnergy;
 }

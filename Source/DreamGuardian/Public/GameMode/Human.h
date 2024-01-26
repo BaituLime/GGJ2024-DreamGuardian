@@ -18,7 +18,10 @@ protected:
 private:
 	float ValueSweetDream;
 	float ValueQuiet;
-
+	
+	UPROPERTY(VisibleAnywhere)
+	UUserWidget* WidgetFailure;
+	
 public:
 	AHuman();
 	virtual void Tick(float DeltaTime) override;
@@ -28,5 +31,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	void OnFailure();
 };
 
