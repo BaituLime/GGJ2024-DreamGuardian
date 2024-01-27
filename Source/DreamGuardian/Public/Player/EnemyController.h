@@ -6,20 +6,31 @@
 #include "AIController.h"
 #include "EnemyController.generated.h"
 
+class AEnemy;
+struct FAIStimulus;
+
 UCLASS()
 class DREAMGUARDIAN_API AEnemyController : public AAIController
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, Category = "AI Perception")
+	float PredictionTime{1.5f};
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	UAIPerceptionComponent* AiPerceptionComponent;
+	UPROPERTY()
+	AEnemy* ControlledEnemy{nullptr};
+
 public:
-	// Sets default values for this actor's properties
 	AEnemyController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 };

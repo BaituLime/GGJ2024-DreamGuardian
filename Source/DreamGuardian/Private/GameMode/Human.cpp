@@ -3,6 +3,8 @@
 
 #include "GameMode/Human.h"
 
+#include "DreamGuardian/PrintString.h"
+#include "GameMode/GameModeBattle.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -23,20 +25,22 @@ void AHuman::Tick(float DeltaTime)
 
 void AHuman::DecreaseSweetDreamValue(const float Value)
 {
-	ValueSweetDream-=Value;
-	if(ValueSweetDream<=0)
+	ValueSweetDream -= Value;
+	if (ValueSweetDream <= 0)
 		OnFailure();
 }
 
 void AHuman::DecreaseQuietValue(const float Value)
 {
-	ValueQuiet-=Value;
-	if(ValueQuiet<=0)
+	ValueQuiet -= Value;
+	if (ValueQuiet <= 0)
 		OnFailure();
 }
 
 void AHuman::OnFailure()
 {
-	
+	// TODO: AHuman::OnFailure
+	Print("AHuman::OnFailure")
+	AGameModeBattle* GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameModeBattle->OnFailure();
 }
-
