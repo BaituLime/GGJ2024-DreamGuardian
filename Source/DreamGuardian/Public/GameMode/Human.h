@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Human.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class DREAMGUARDIAN_API AHuman : public AActor
 {
@@ -21,6 +23,11 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	UUserWidget* WidgetFailure;
+	
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* BoxComponent;
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* StaticMeshComponent;
 	
 public:
 	AHuman();

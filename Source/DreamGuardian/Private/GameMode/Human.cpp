@@ -3,6 +3,7 @@
 
 #include "GameMode/Human.h"
 
+#include "Components/BoxComponent.h"
 #include "DreamGuardian/PrintString.h"
 #include "GameMode/GameModeBattle.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,6 +12,12 @@
 AHuman::AHuman()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	SetRootComponent(BoxComponent);
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	StaticMeshComponent->SetupAttachment(BoxComponent);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AHuman::BeginPlay()
