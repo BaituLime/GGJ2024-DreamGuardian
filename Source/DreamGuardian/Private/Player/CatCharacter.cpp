@@ -5,11 +5,14 @@
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DreamGuardian/PrintString.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "GameMode/GameModeBattle.h"
+#include "Kismet/GameplayStatics.h"
 
 ACatCharacter::ACatCharacter()
 {
@@ -52,10 +55,28 @@ void ACatCharacter::Tick(float DeltaSeconds)
 	ValueEnergy = FMath::Clamp(ValueEnergy + DeltaSeconds, 0, MaxValueEnergy);
 }
 
+void ACatCharacter::DecreaseHealthValue(const float Value)
+{
+	PrintFormat("%s decreases %f Health value.", *GetName(),Value)
+	ValueHealth -= Value;
+	if (ValueHealth <= 0)
+	{
+		OnFailure();
+	}
+}
+
 void ACatCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	ValueHealth = MaxValueHealth;
 	ValueEnergy = MaxValueEnergy;
+}
+
+void ACatCharacter::OnFailure()
+{
+	// TODO: ACatCharacter::OnFailure
+	Print("ACatCharacter::OnFailure")
+	AGameModeBattle* GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameModeBattle->OnFailure();
 }

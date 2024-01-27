@@ -24,14 +24,11 @@ protected:
 	float ScopeAttack{100.f};
 
 	UPROPERTY(EditAnywhere, Category = Enemy)
-	UBehaviorTree* BehaviorTree;
+	UBehaviorTree* BehaviorTree{nullptr};
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Enemy)
 	float ValueHealth;
-
-	// UPROPERTY(VisibleAnywhere)
-
 
 public:
 	AEnemy();
@@ -46,9 +43,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void Attack(AActor* TargetActor);
+	UFUNCTION(BlueprintCallable)
+	void DecreaseHealthValue(const float Value);
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetAttackScope() const { return ScopeAttack; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetAttackValue() const { return ValueAttack; }
 };

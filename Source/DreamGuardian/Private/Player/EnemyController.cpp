@@ -4,6 +4,7 @@
 #include "Player/EnemyController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameMode/Human.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -26,12 +27,12 @@ void AEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ThisClass::OnTargetPerceptionUpdated);
-
-	GetBlackboardComponent()->SetValueAsObject(
-		TEXT("HumanActor"), UGameplayStatics::GetActorOfClass(GetWorld(), AHuman::StaticClass()));
 	ControlledEnemy = Cast<AEnemy>(GetPawn());
 	RunBehaviorTree(ControlledEnemy->GetBehaviorTree());
+	
+	AiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ThisClass::OnTargetPerceptionUpdated);
+
+	GetHumanActor();
 }
 
 void AEnemyController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -85,4 +86,13 @@ void AEnemyController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 			GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownLocation"), Stimulus.StimulusLocation);
 		}
 	}
+}
+
+void AEnemyController::GetHumanActor()
+{
+	Human = Cast<AHuman>(UGameplayStatics::GetActorOfClass(GetWorld(), AHuman::StaticClass()));
+	if (Human)
+		GetBlackboardComponent()->SetValueAsObject(TEXT("HumanActor"), Human);
+	else
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::GetHumanActor);
 }

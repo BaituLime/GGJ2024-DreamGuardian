@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "EnemyController.generated.h"
 
+class AHuman;
+class UTimelineComponent;
 class AEnemy;
 struct FAIStimulus;
 
@@ -22,6 +24,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionComponent* AiPerceptionComponent;
 	UPROPERTY()
+	AHuman* Human;
+	UPROPERTY()
 	AEnemy* ControlledEnemy{nullptr};
 
 public:
@@ -33,4 +37,7 @@ protected:
 private:
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+	UFUNCTION()
+	void GetHumanActor();
 };

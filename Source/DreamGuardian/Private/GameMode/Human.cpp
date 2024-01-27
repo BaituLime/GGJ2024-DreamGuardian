@@ -4,6 +4,7 @@
 #include "GameMode/Human.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "DreamGuardian/PrintString.h"
 #include "GameMode/GameModeBattle.h"
 #include "Kismet/GameplayStatics.h"
@@ -23,6 +24,8 @@ AHuman::AHuman()
 void AHuman::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 }
 
 void AHuman::Tick(float DeltaTime)
@@ -32,6 +35,7 @@ void AHuman::Tick(float DeltaTime)
 
 void AHuman::DecreaseSweetDreamValue(const float Value)
 {
+	PrintFormat("Human decreases %f SweetDream value.", Value)
 	ValueSweetDream -= Value;
 	if (ValueSweetDream <= 0)
 		OnFailure();
@@ -39,6 +43,7 @@ void AHuman::DecreaseSweetDreamValue(const float Value)
 
 void AHuman::DecreaseQuietValue(const float Value)
 {
+	PrintFormat("Human decreases %f quiet value.", Value)
 	ValueQuiet -= Value;
 	if (ValueQuiet <= 0)
 		OnFailure();
