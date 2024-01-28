@@ -36,6 +36,9 @@ public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void DecreaseHealthValue(const float Value);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -46,9 +49,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void Attack(AActor* TargetActor);
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void ActualAttack(AActor* TargetActor);
-	UFUNCTION(BlueprintCallable)
-	void DecreaseHealthValue(const float Value);
+	void ActualAttack();
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }

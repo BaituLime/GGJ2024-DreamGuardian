@@ -11,10 +11,14 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include "DreamGuardian/PrintString.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode/GameModeBattle.h"
+#include "GameMode/Human.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/Enemy.h"
 #include "Widgets/WidgetGeneral.h"
@@ -32,6 +36,23 @@ ACatPlayerController::ACatPlayerController()
 void ACatPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	CatDistance = FVector::Distance(Cat->GetActorLocation(), Human->GetActorLocation());
+	AwakeTimes = .5f + 1.5f / (1 + (CatDistance / 80.f));
+	if (AwakeTimes > 1.5f && GameModeBattle->ValueCoin > 0 && CatActionState <= ECAS_Chasing)
+	{
+		WidgetGeneral->OpenTips();
+		if (bIsFPressed)
+		{
+			GameModeBattle->ValueCoin -= .2f * DeltaSeconds;
+			Human->ValueSweetDream += 2.f * DeltaSeconds;
+		}
+	}
+	else
+	{
+		WidgetGeneral->CloseTips();
+	}
+
 	switch (CatActionState)
 	{
 	case ECAS_Moving:
@@ -49,12 +70,62 @@ void ACatPlayerController::Tick(float DeltaSeconds)
 		if (FVector::Distance(Cat->GetActorLocation(), CachedDestination) <= Cat->ScopeAttack * .9f)
 		{
 			CatActionState = ECAS_ReadyToAttack;
+			CatAttackMethod = ECAM_Normal;
 			StopMovement();
 		}
 		break;
+	case ECAS_ConfirmToAttack:
+		if (CatAttackMethod == ECAM_W)
+		{
+			FHitResult Hit;
+			bool bHitSuccessful = false;
+			if (bIsTouch)
+			{
+				bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true,
+				                                         Hit);
+			}
+			else
+			{
+				bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+			}
+
+			if (bHitSuccessful)
+			{
+				FRotator Rotator = Cat->GetActorRotation();
+				Cat->SetActorRotation(FRotator{
+					Rotator.Pitch, UKismetMathLibrary::MakeRotFromX(Hit.ImpactPoint - Cat->GetActorLocation()).Yaw,
+					Rotator.Roll
+				});
+			}
+		}
+		break;
 	case ECAS_ReadyToAttack:
-		CatActionState = ECAS_Attacking;
-		Cat->Attack(CachedEnemy);
+		if (CatAttackMethod == ECAM_Normal)
+		{
+			CatActionState = ECAS_Attacking;
+			StopMovement();
+			Cat->CachedEnemy = CachedEnemy;
+			Cat->GetMesh()->GetAnimInstance()->Montage_Play(Cat->MontageAttack);
+		}
+		else if (CatAttackMethod == ECAM_Q)
+		{
+			if (!UKismetSystemLibrary::IsValid(CachedEnemy))
+			{
+				CatActionState = ECAS_Nothing;
+				StopMovement();
+				Cat->GetCharacterMovement()->MaxWalkSpeed = 800.f;
+				break;
+			}
+			if (FVector::Distance(Cat->GetActorLocation(), CachedEnemy->GetActorLocation()) <= Cat->ScopeAttack)
+			{
+				CatActionState = ECAS_Attacking;
+				StopMovement();
+				Cat->GetCharacterMovement()->MaxWalkSpeed = 800.f;
+				Cat->CachedEnemy = CachedEnemy;
+				Human->DecreaseQuietValue(10.f * AwakeTimes);
+				Cat->GetMesh()->GetAnimInstance()->Montage_Play(Cat->MontageQ);
+			}
+		}
 		break;
 	default: ;
 	}
@@ -79,6 +150,7 @@ void ACatPlayerController::BeginPlay()
 
 	Cat = Cast<ACatCharacter>(GetPawn());
 	GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
+	Human = Cast<AHuman>(UGameplayStatics::GetActorOfClass(GetWorld(), AHuman::StaticClass()));
 
 	WidgetGeneral = CreateWidget<UWidgetGeneral>(this, WidgetClassGeneral);
 	WidgetGeneral->AddToViewport(-1);
@@ -120,6 +192,49 @@ void ACatPlayerController::SetupInputComponent()
 		                                   &ACatPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this,
 		                                   &ACatPlayerController::OnTouchReleased);
+
+		EnhancedInputComponent->BindAction(QClickAction, ETriggerEvent::Started, this,
+		                                   &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(QClickAction, ETriggerEvent::Triggered, this,
+		                                   &ACatPlayerController::OnQTriggered);
+		EnhancedInputComponent->BindAction(QClickAction, ETriggerEvent::Completed, this,
+		                                   &ACatPlayerController::OnQReleased);
+		EnhancedInputComponent->BindAction(QClickAction, ETriggerEvent::Canceled, this,
+		                                   &ACatPlayerController::OnQReleased);
+
+		EnhancedInputComponent->BindAction(WClickAction, ETriggerEvent::Started, this,
+		                                   &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(WClickAction, ETriggerEvent::Triggered, this,
+		                                   &ACatPlayerController::OnWTriggered);
+		EnhancedInputComponent->BindAction(WClickAction, ETriggerEvent::Completed, this,
+		                                   &ACatPlayerController::OnWReleased);
+		EnhancedInputComponent->BindAction(WClickAction, ETriggerEvent::Canceled, this,
+		                                   &ACatPlayerController::OnWReleased);
+
+		EnhancedInputComponent->BindAction(EClickAction, ETriggerEvent::Started, this,
+		                                   &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(EClickAction, ETriggerEvent::Triggered, this,
+		                                   &ACatPlayerController::OnETriggered);
+		EnhancedInputComponent->BindAction(EClickAction, ETriggerEvent::Completed, this,
+		                                   &ACatPlayerController::OnEReleased);
+		EnhancedInputComponent->BindAction(EClickAction, ETriggerEvent::Canceled, this,
+		                                   &ACatPlayerController::OnEReleased);
+
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Started, this,
+		                                   &ACatPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Triggered, this,
+		                                   &ACatPlayerController::OnRTriggered);
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Completed, this,
+		                                   &ACatPlayerController::OnRReleased);
+		EnhancedInputComponent->BindAction(RClickAction, ETriggerEvent::Canceled, this,
+		                                   &ACatPlayerController::OnRReleased);
+
+		EnhancedInputComponent->BindAction(FClickAction, ETriggerEvent::Triggered, this,
+		                                   &ACatPlayerController::OnFTriggered);
+		EnhancedInputComponent->BindAction(FClickAction, ETriggerEvent::Completed, this,
+		                                   &ACatPlayerController::OnFReleased);
+		EnhancedInputComponent->BindAction(FClickAction, ETriggerEvent::Canceled, this,
+		                                   &ACatPlayerController::OnRReleased);
 	}
 	else
 	{
@@ -132,13 +247,18 @@ void ACatPlayerController::SetupInputComponent()
 
 void ACatPlayerController::OnInputStarted()
 {
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
 	CatActionState = ECAS_Nothing;
 	StopMovement();
+	bIsFPressed = false;
 }
 
 // Triggered every frame when the input is held down
 void ACatPlayerController::OnSetDestinationTriggered()
 {
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
@@ -169,12 +289,14 @@ void ACatPlayerController::OnSetDestinationTriggered()
 			{
 				CatActionState = ECAS_Chasing;
 			}
+			WidgetGeneral->DisplaySkill(4);
 		}
 		else
 		{
 			// Move.
 			CatActionState = ECAS_Moving;
 			CachedDestination = Hit.Location;
+			WidgetGeneral->DisplaySkill(10);
 		}
 	}
 
@@ -219,8 +341,144 @@ void ACatPlayerController::OnTouchReleased()
 
 void ACatPlayerController::OnConfirmTriggered()
 {
+	if (CatActionState != ECAS_ConfirmToAttack)
+		return;
+
+	if (CatAttackMethod == ECAM_Q)
+	{
+		FHitResult Hit;
+		bool bHitSuccessful = false;
+		if (bIsTouch)
+		{
+			bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
+		}
+		else
+		{
+			bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+		}
+
+		if (bHitSuccessful)
+		{
+			CachedEnemy = Cast<AEnemy>(Hit.GetActor());
+			if (CachedEnemy)
+			{
+				CatActionState = ECAS_ReadyToAttack;
+				Cat->GetCharacterMovement()->MaxWalkSpeed = 5600.f;
+				UAIBlueprintHelperLibrary::SimpleMoveToActor(this, CachedEnemy);
+			}
+		}
+	}
+	else if (CatAttackMethod == ECAM_W)
+	{
+		CatActionState = ECAS_Attacking;
+		Human->DecreaseQuietValue(20.f * AwakeTimes);
+		Cat->GetMesh()->GetAnimInstance()->Montage_Play(Cat->MontageW);
+	}
+	else if (CatAttackMethod == ECAM_E)
+	{
+		CatActionState = ECAS_Attacking;
+		Human->DecreaseQuietValue(40.f * AwakeTimes);
+		Cat->GetMesh()->GetAnimInstance()->Montage_Play(Cat->MontageE);
+	}
+	else if (CatAttackMethod == ECAM_R)
+	{
+		CatActionState = ECAS_Attacking;
+		Human->DecreaseQuietValue(60.f * AwakeTimes);
+		Cat->GetMesh()->GetAnimInstance()->Montage_Play(Cat->MontageR);
+	}
 }
 
 void ACatPlayerController::OnConfirmReleased()
 {
+}
+
+void ACatPlayerController::OnQTriggered()
+{
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
+	WidgetGeneral->DisplaySkill(0);
+	CatActionState = ECAS_ConfirmToAttack;
+	CatAttackMethod = ECAM_Q;
+}
+
+void ACatPlayerController::OnQReleased()
+{
+	if (CatActionState == ECAS_ConfirmToAttack)
+	{
+		WidgetGeneral->DisplaySkill(10);
+		CatActionState = ECAS_Nothing;
+	}
+}
+
+void ACatPlayerController::OnWTriggered()
+{
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
+	WidgetGeneral->DisplaySkill(1);
+	CatActionState = ECAS_ConfirmToAttack;
+	CatAttackMethod = ECAM_W;
+	Cat->WidgetComponentLightScope->SetVisibility(true);
+}
+
+void ACatPlayerController::OnWReleased()
+{
+	if (CatActionState == ECAS_ConfirmToAttack)
+	{
+		WidgetGeneral->DisplaySkill(10);
+		CatActionState = ECAS_Nothing;
+		Cat->WidgetComponentLightScope->SetVisibility(false);
+	}
+}
+
+void ACatPlayerController::OnETriggered()
+{
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
+	WidgetGeneral->DisplaySkill(2);
+	CatActionState = ECAS_ConfirmToAttack;
+	CatAttackMethod = ECAM_E;
+}
+
+void ACatPlayerController::OnEReleased()
+{
+	if (CatActionState == ECAS_ConfirmToAttack)
+	{
+		WidgetGeneral->DisplaySkill(10);
+		CatActionState = ECAS_Nothing;
+	}
+}
+
+void ACatPlayerController::OnRTriggered()
+{
+	if (Human->bIsDead || CatActionState >= ECAS_ConfirmToAttack)
+		return;
+	WidgetGeneral->DisplaySkill(3);
+	CatActionState = ECAS_ConfirmToAttack;
+	CatAttackMethod = ECAM_R;
+}
+
+void ACatPlayerController::OnRReleased()
+{
+	if (CatActionState == ECAS_ConfirmToAttack)
+	{
+		WidgetGeneral->DisplaySkill(10);
+		CatActionState = ECAS_Nothing;
+	}
+}
+
+void ACatPlayerController::OnFTriggered()
+{
+	bIsFPressed = true;
+}
+
+void ACatPlayerController::OnFReleased()
+{
+	bIsFPressed = false;
+}
+
+void ACatPlayerController::ReturnToNothing()
+{
+	Cat->WidgetComponentLightScope->SetVisibility(false);
+	WidgetGeneral->DisplaySkill(10);
+	CatActionState = ECAS_Nothing;
 }

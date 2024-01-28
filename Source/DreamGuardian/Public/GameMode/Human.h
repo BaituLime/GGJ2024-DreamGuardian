@@ -16,6 +16,9 @@ class DREAMGUARDIAN_API AHuman : public AActor
 {
 	GENERATED_BODY()
 
+public:
+	friend class ACatPlayerController;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	TSubclassOf<UUserWidget> WidgetClassFailure;
