@@ -10,10 +10,14 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/UserWidget.h"
 #include "DreamGuardian/PrintString.h"
 #include "Engine/LocalPlayer.h"
+#include "GameMode/GameModeBattle.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/Enemy.h"
+#include "Widgets/WidgetGeneral.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -56,6 +60,11 @@ void ACatPlayerController::Tick(float DeltaSeconds)
 	}
 }
 
+void ACatPlayerController::UpdateCoinNumber()
+{
+	WidgetGeneral->SetDreamCount(GameModeBattle->ValueCoin);
+}
+
 void ACatPlayerController::BeginPlay()
 {
 	// Call the base class  
@@ -69,6 +78,10 @@ void ACatPlayerController::BeginPlay()
 	}
 
 	Cat = Cast<ACatCharacter>(GetPawn());
+	GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	WidgetGeneral = CreateWidget<UWidgetGeneral>(this, WidgetClassGeneral);
+	WidgetGeneral->AddToViewport(-1);
 }
 
 void ACatPlayerController::SetupInputComponent()

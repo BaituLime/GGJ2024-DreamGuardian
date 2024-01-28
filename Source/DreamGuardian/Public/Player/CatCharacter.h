@@ -20,8 +20,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Cat)
 	float MaxValueHealth{100.f};
 	UPROPERTY(EditDefaultsOnly, Category = Cat)
-	float MaxValueEnergy{100.f};
-	UPROPERTY(EditDefaultsOnly, Category = Cat)
 	float ValueAttack{30.f};
 	UPROPERTY(EditDefaultsOnly, Category = Cat)
 	float ScopeAttack{100.f};
@@ -29,14 +27,15 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, Category = Cat)
 	float ValueHealth{100.f};
-	UPROPERTY(VisibleAnywhere, Category = Cat)
-	float ValueEnergy{100.f};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY()
+	ACatPlayerController* CatPlayerController;
 
 public:
 	ACatCharacter();

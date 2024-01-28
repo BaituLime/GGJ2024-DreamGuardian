@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "CatPlayerController.generated.h"
 
+class UWidgetGeneral;
+class AGameModeBattle;
 class AEnemy;
 class ACatCharacter;
 /** Forward declaration to improve compiling times */
@@ -32,6 +34,8 @@ class ACatPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	friend class ACatCharacter;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -49,6 +53,9 @@ protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Cat)
+	TSubclassOf<UUserWidget> WidgetClassGeneral;
+
 private:
 	ECatActionState CatActionState{ECAS_Nothing};
 
@@ -59,10 +66,16 @@ private:
 	float FollowTime; // For how long it has been pressed
 
 	ACatCharacter* Cat{nullptr};
-	
+	AGameModeBattle* GameModeBattle{nullptr};
+
+	UPROPERTY()
+	UWidgetGeneral* WidgetGeneral;
+
 public:
 	ACatPlayerController();
 	virtual void Tick(float DeltaSeconds) override;
+
+	void UpdateCoinNumber();
 
 protected:
 	virtual void SetupInputComponent() override;

@@ -3,7 +3,8 @@
 
 #include "Others/Coin.h"
 
-#include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameMode/GameModeBattle.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/CatCharacter.h"
@@ -14,24 +15,21 @@ ACoin::ACoin()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
-	SetRootComponent(CapsuleComponent);
-	CapsuleComponent->SetGenerateOverlapEvents(true);
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	StaticMeshComponent->SetupAttachment(CapsuleComponent);
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-void ACoin::SetCurrentValue(const float Value)
-{
-	ValueCurrent = Value;
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+	SetRootComponent(SphereComponent);
+	SphereComponent->SetGenerateOverlapEvents(true);
+	SphereComponent->SetSphereRadius(24.f);
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	WidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACoin::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// TODO: Effect.
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundAppear, GetActorLocation());
 }
 
 void ACoin::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -42,7 +40,9 @@ void ACoin::NotifyActorBeginOverlap(AActor* OtherActor)
 	AGameModeBattle* GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (CatCharacter && CatPlayerController && GameModeBattle)
 	{
-		// TODO: Effect and UI Updating.
-		GameModeBattle->AddCoin(ValueCurrent);
+		UGameplayStatics::PlaySound2D(GetWorld(), SoundPick);
+		GameModeBattle->AddCoin(1);
+		CatPlayerController->UpdateCoinNumber();
+		Destroy();
 	}
 }

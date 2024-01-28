@@ -14,7 +14,6 @@
 #include "Perception/AISense_Touch.h"
 #include "Player/CatCharacter.h"
 #include "Player/Enemy.h"
-#include "Traps/TrapMolarRod.h"
 
 AEnemyController::AEnemyController()
 {
@@ -40,7 +39,7 @@ void AEnemyController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass())
 	{
 		// Handle Sight Sense.
-		if (Actor->IsA(ATrapMolarRod::StaticClass()) || Actor->IsA(ACatCharacter::StaticClass()))
+		if (Actor->IsA(ACatCharacter::StaticClass()))
 		{
 			if (Stimulus.WasSuccessfullySensed())
 			{
@@ -65,7 +64,7 @@ void AEnemyController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 	else if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Touch::StaticClass())
 	{
 		// Handle Touch Sense.
-		if (Actor->IsA(ATrapMolarRod::StaticClass()) || Actor->IsA(ACatCharacter::StaticClass()))
+		if (Actor->IsA(ACatCharacter::StaticClass()))
 		{
 			if (Stimulus.WasSuccessfullySensed())
 			{

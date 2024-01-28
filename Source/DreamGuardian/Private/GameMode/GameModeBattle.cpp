@@ -14,6 +14,8 @@ AGameModeBattle::AGameModeBattle()
 void AGameModeBattle::OnFailure()
 {
 	Print("AGameModeBattle::OnFailure")
+
+	ValueCoin = 0;
 }
 
 void AGameModeBattle::AddCoin(const float Value)

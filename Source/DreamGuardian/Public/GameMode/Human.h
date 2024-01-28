@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Human.generated.h"
 
+class UWidgetFailure;
+class UWidgetComponent;
+class UWidgetHuman;
 class UBoxComponent;
 
 UCLASS()
@@ -19,17 +22,23 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
+	bool bIsDead;
+	UPROPERTY(VisibleAnywhere)
 	float ValueSweetDream{100.f};
 	UPROPERTY(VisibleAnywhere)
-	float ValueQuiet{100.f};
+	float ValueAwake{0.f};
 
-	UPROPERTY(VisibleAnywhere)
-	UUserWidget* WidgetFailure;
+	UPROPERTY(VisibleAnywhere, Category = "Appearance")
+	UWidgetFailure* WidgetFailure;
+	UPROPERTY(VisibleAnywhere, Category = "Appearance")
+	UWidgetHuman* WidgetHuman;
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* BoxComponent;
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* StaticMeshComponent;
+	UPROPERTY(VisibleAnywhere)
+	UWidgetComponent* WidgetComponent;
 
 public:
 	AHuman();

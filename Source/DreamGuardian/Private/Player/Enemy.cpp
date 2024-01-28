@@ -37,7 +37,14 @@ void AEnemy::DecreaseHealthValue(const float Value)
 	PrintFormat("%s decreases %f Health value.", *GetName(), Value)
 	ValueHealth -= Value;
 	if (ValueHealth <= 0)
+	{
+		if (FMath::RandRange(0.f, 1.f) < .3f)
+		{
+			const FVector Location = GetActorLocation();
+			GetWorld()->SpawnActor(CoinType, &Location);
+		}
 		Destroy();
+	}
 }
 
 void AEnemy::Tick(float DeltaTime)

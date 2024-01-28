@@ -25,6 +25,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Enemy)
 	UBehaviorTree* BehaviorTree{nullptr};
+	UPROPERTY(EditAnywhere, Category = Enemy)
+	TSubclassOf<AActor> CoinType;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Enemy)
@@ -43,14 +45,17 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void Attack(AActor* TargetActor);
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ActualAttack(AActor* TargetActor);
 	UFUNCTION(BlueprintCallable)
 	void DecreaseHealthValue(const float Value);
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
-	
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetAttackScope() const { return ScopeAttack; }
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetAttackValue() const { return ValueAttack; }
 };

@@ -16,6 +16,7 @@ private:
 	float ValueCoin{0};
 
 public:
+	friend class ACatPlayerController;
 	AGameModeBattle();
 
 	void OnFailure();

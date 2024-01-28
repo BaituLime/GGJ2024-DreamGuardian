@@ -6,26 +6,31 @@
 #include "GameFramework/Actor.h"
 #include "Coin.generated.h"
 
-class UCapsuleComponent;
+class USphereComponent;
+class UWidgetComponent;
 
 UCLASS()
 class DREAMGUARDIAN_API ACoin : public AActor
 {
 	GENERATED_BODY()
-
+protected:
+	UPROPERTY(EditAnywhere, Category = Coin)
+	USoundBase* SoundAppear;
+	UPROPERTY(EditAnywhere, Category = Coin)
+	USoundBase* SoundPick;
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Coin)
 	float ValueCurrent{1};
 
 	UPROPERTY(VisibleAnywhere)
-	UCapsuleComponent* CapsuleComponent;
+	USphereComponent* SphereComponent;
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* StaticMeshComponent;
+	UWidgetComponent* WidgetComponent;
+
 
 public:
 	ACoin();
-
-	void SetCurrentValue(const float Value);
 
 protected:
 	virtual void BeginPlay() override;

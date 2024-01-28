@@ -11,8 +11,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
 #include "GameMode/GameModeBattle.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/CatPlayerController.h"
+#include "Widgets/WidgetGeneral.h"
 
 ACatCharacter::ACatCharacter()
 {
@@ -51,14 +54,13 @@ ACatCharacter::ACatCharacter()
 void ACatCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	ValueEnergy = FMath::Clamp(ValueEnergy + DeltaSeconds, 0, MaxValueEnergy);
 }
 
 void ACatCharacter::DecreaseHealthValue(const float Value)
 {
-	PrintFormat("%s decreases %f Health value.", *GetName(),Value)
+	PrintFormat("%s decreases %f Health value.", *GetName(), Value)
 	ValueHealth -= Value;
+	CatPlayerController->WidgetGeneral->SetHealthPercent(FMath::Clamp(ValueHealth / MaxValueHealth, 0.f, 1.f));
 	if (ValueHealth <= 0)
 	{
 		OnFailure();
@@ -70,13 +72,13 @@ void ACatCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	ValueHealth = MaxValueHealth;
-	ValueEnergy = MaxValueEnergy;
+
+	CatPlayerController = Cast<ACatPlayerController>(GetController());
 }
 
 void ACatCharacter::OnFailure()
 {
-	// TODO: ACatCharacter::OnFailure
-	Print("ACatCharacter::OnFailure")
-	AGameModeBattle* GameModeBattle = Cast<AGameModeBattle>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameModeBattle->OnFailure();
+	ValueHealth = MaxValueHealth;
+	SetActorLocation(UGameplayStatics::GetActorOfClass(GetWorld(), APlayerStart::StaticClass())->GetActorLocation());
+	CatPlayerController->WidgetGeneral->SetHealthPercent(1.f);
 }
